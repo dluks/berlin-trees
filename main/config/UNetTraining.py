@@ -1,5 +1,15 @@
 import os
 
+from core.losses import (
+    accuracy,
+    dice_coef,
+    dice_loss,
+    sensitivity,
+    specificity,
+    tversky,
+)
+from core.optimizers import adaDelta
+
 
 # Configuration parameters for 2-UNetTraining.ipynb
 class Config:
@@ -12,6 +22,11 @@ class Config:
 
         # Whether to use binary segmentation or multiclass
         self.use_binary_labels = True
+        
+        # Describe the weights file, e.g. "obj0-bg1-bounds_cnt10" where "obj0" indicates
+        # labels as having weights of 0, "bg1" -> background 1, and "bounds_cnt10" ->
+        # boundaries continous weights up to 10
+        self.weights_type = "obj0-bg1-bounds_cnt"
 
         # Patch generation; from the training areas (extracted in the last notebook),
         # we generate fixed size patches.
@@ -41,10 +56,26 @@ class Config:
         # Shape of the input data, height*width*channel. Here channels are R, G, B, NIR,
         # NDVI, after which labels and weights will be added.
         self.input_shape = (*self.patch_size, 5)
-        self.input_image_channels = list(range(0, self.input_shape[-1]))
+        self.input_image_channels = [0, 1, 2, 3, 4]
         self.input_label_channel = [5]
         self.input_weight_channel = [6]
 
         # CNN hyperparameters
         self.BATCH_SIZE = 8
-        self.NB_EPOCHS = 50
+        self.EPOCHS = 50
+        self.optimizer = adaDelta
+        self.OPTIMIZER_NAME = "AdaDelta"
+        self.loss = tversky
+        self.LOSS_NAME = "weightmap_tversky"
+        self.metrics = [dice_coef, dice_loss, specificity, sensitivity, accuracy]
+        
+        # Maximum number of validation images to use
+        self.VAL_LIMIT = 200
+        
+        # Maximum number of steps_per_epoch while training
+        self.MAX_TRAIN_STEPS = 1000
+        
+        # Where to save the model and/or weights
+        self.weights_only = 0  # 0 = False, 1 = True
+        self.model_path = "./saved_models/UNet"
+        self.weights_path = "./saved_weights/UNet"
