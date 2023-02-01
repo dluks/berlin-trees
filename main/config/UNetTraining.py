@@ -1,5 +1,7 @@
 import os
 
+import core.callbacks as callbacks
+import core.optimizers as optimizers
 from core.losses import (
     accuracy,
     dice_coef,
@@ -8,11 +10,12 @@ from core.losses import (
     specificity,
     tversky,
 )
-from core.optimizers import adaDelta
 
 
 # Configuration parameters for 2-UNetTraining.ipynb
 class Config:
+    """Configuration constructor for performing U-Net training.
+    """
     def __init__(self):
         self.image_dir = "../../data/dap05/combined/512"  # Relative to the notebook
         self.rgbi_dn = "rgbi"  # dn = directory name
@@ -60,14 +63,26 @@ class Config:
         self.input_label_channel = [5]
         self.input_weight_channel = [6]
 
+        # CNN SETTINGS
+        # Where to save the model and/or weights
+        self.weights_only = 0  # 0 = False, 1 = True
+        self.model_path = "./saved_models/UNet"
+        self.weights_path = "./saved_weights/UNet"
+        self.log_dir = "./logs/UNet"
+        
         # CNN hyperparameters
         self.BATCH_SIZE = 8
         self.EPOCHS = 50
-        self.optimizer = adaDelta
+        self.optimizer = optimizers.adaDelta
         self.OPTIMIZER_NAME = "AdaDelta"
         self.loss = tversky
         self.LOSS_NAME = "weightmap_tversky"
         self.metrics = [dice_coef, dice_loss, specificity, sensitivity, accuracy]
+        
+        # CNN Callbacks
+        checkpoint = callbacks.checkpoint(self.model_path)
+        tensorboard = callbacks.tensorboard(self.log_dir)
+        self.callbacks = [checkpoint, tensorboard]
         
         # Maximum number of validation images to use
         self.VAL_LIMIT = 200
@@ -75,7 +90,4 @@ class Config:
         # Maximum number of steps_per_epoch while training
         self.MAX_TRAIN_STEPS = 1000
         
-        # Where to save the model and/or weights
-        self.weights_only = 0  # 0 = False, 1 = True
-        self.model_path = "./saved_models/UNet"
-        self.weights_path = "./saved_weights/UNet"
+        
