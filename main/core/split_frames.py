@@ -1,18 +1,31 @@
 import json
 import os
 
+import numpy as np
 from sklearn.model_selection import train_test_split
 
 
-def split_dataset(frames, frames_json, patch_dir, test_size=0.2, val_size=0.2):
+def split_dataset(
+    frames,
+    frames_json,
+    patch_dir,
+    test_size=0.2,
+    val_size=0.2,
+    test_override=None,
+    val_override=None,
+):
     """Split the frames into training, validation, and testing sets.
 
     Args:
-        frames (list(FrameInfo)): Listof all the frames
+        frames (list(FrameInfo)): List of all the frames
         frames_json (str): Filename of the JSON cache
         patch_dir (str): Path to the directory where frame_json is stored
         test_size (float, optional): Ratio of test split. Defaults to 0.2.
         val_size (float, optional): Ratio of the validation set. Defaults to 0.2.
+        test_override (list[str]): A list of frame names to be manually selected as test data. Only
+            partial names are needed for matching.
+        val_override (list[str]): A list of frame names to be manually selected as validation data.
+            Only partial names are needed for matching.
 
     Returns:
         tuple: Tuple containing the split training, validation, and testing frames
@@ -27,17 +40,50 @@ def split_dataset(frames, frames_json, patch_dir, test_size=0.2, val_size=0.2):
 
     else:
         print("Creating and writing train-test split from frames...")
-        frames_list = list(range(len(frames)))
+        frame_idx = np.arange(len(frames))
+        mask = np.ones_like(frame_idx, dtype=bool)
+        f_names = [os.path.basename(f.name) for f in frames]
 
-        # Divide into training and test set
-        training_frame_idx, testing_frame_idx = train_test_split(
-            frames_list, test_size=test_size
-        )
+        if test_override:
+            testing_frame_idx = []
+            for val in test_override:
+                for j, name in enumerate(f_names):
+                    if val in name:
+                        testing_frame_idx.append(j)
 
-        # Further divide training set into training and validation sets
-        training_frame_idx, validation_frame_idx = train_test_split(
-            training_frame_idx, test_size=val_size
-        )
+            mask[testing_frame_idx] = False
+
+        if val_override:
+            validation_frame_idx = []
+            for val in val_override:
+                for j, name in enumerate(f_names):
+                    if val in name:
+                        validation_frame_idx.append(j)
+            
+            mask[validation_frame_idx] = False
+
+        # Mask the test and/or val frames if any
+        frame_idx = frame_idx[mask].tolist()
+        
+        # Split the sets according to overrides (or lack of them). This feels
+        # inefficient...
+        if test_override and val_override:
+            training_frame_idx = frame_idx
+        elif val_override:
+            training_frame_idx, testing_frame_idx = train_test_split(
+                frame_idx, test_size=test_size
+            )
+        elif test_override:
+            training_frame_idx, validation_frame_idx = train_test_split(
+                frame_idx, test_size=val_size
+            )
+        else:
+            training_frame_idx, testing_frame_idx = train_test_split(
+                frame_idx, test_size=test_size
+            )
+            training_frame_idx, validation_frame_idx = train_test_split(
+                training_frame_idx, test_size=val_size
+            )
 
         frame_split = {
             "training_frame_idx": training_frame_idx,
@@ -50,9 +96,14 @@ def split_dataset(frames, frames_json, patch_dir, test_size=0.2, val_size=0.2):
 
         with open(frames_json, "w") as f:
             json.dump(frame_split, f)
+        
+    # Sanity check for set sizes
+    if test_override:
+        print(f"\nUsing test override:", test_override)
+    if val_override:
+        print(f"\nUsing val override:", val_override)
+    print("\nTraining set size:", len(training_frame_idx))
+    print("Validation set size:", len(validation_frame_idx))
+    print("Testing set size:", len(testing_frame_idx))
 
-    # print("training_frame_idx:", training_frame_idx)
-    # print("validation_frame_idx:", validation_frame_idx)
-    # print("testing_frame_idx:", testing_frame_idx)
-    
     return training_frame_idx, validation_frame_idx, testing_frame_idx

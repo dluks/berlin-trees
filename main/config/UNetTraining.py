@@ -56,7 +56,9 @@ class Config:
         # The split of training areas into training, validation and testing set, is
         # cached in patch_dir.
         self.patch_dir = f"./patches_{self.patch_size[0]}"
-        self.frames_json = os.path.join(self.patch_dir, "frames_list.json")
+        self.test_override = ["393_5823"]
+        self.val_override = ["393_5823"]
+        self.frames_json = os.path.join(self.patch_dir, "hand_as_val.json")
 
         # Shape of the input data, height*width*channel. Here channels are R, G, B, NIR,
         # NDVI, after which labels and weights will be added.
