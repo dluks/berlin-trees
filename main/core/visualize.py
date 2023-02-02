@@ -14,7 +14,8 @@ def display_images(images, input_channels, annotation_channels, titles=None):
     """
     # Assume RGB is present, so combine those channels and display the rest as
     # singleband
-    cols = len(input_channels) - 2 + len(annotation_channels)
+    print(images.shape)
+    cols = images.shape[-1] - 2
     rows = images.shape[0]
     titles = titles if titles is not None else [""] * cols
 
@@ -24,7 +25,7 @@ def display_images(images, input_channels, annotation_channels, titles=None):
             if i == 0:
                 ax.imshow(images[row, ..., :3]) # RGB
             elif i == cols - 1:
-                ax.imshow(images[row, ..., i + 2], vmin=0, vmax=10)
+                ax.imshow(images[row, ..., i + 2])
             else:
                 ax.imshow(images[row, ..., i + 2])
             
