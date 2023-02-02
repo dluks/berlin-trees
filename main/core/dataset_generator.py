@@ -149,13 +149,20 @@ class DataGenerator:
                 # augmentation won't be apples to apples due to the now different
                 # weighting schemes.
                 weights = y[..., [1]]
-                weights[weights > 1] = 10
-                weights[weights < 1] = 0
+                weights[weights >= 2] = 10
+                weights[weights < 2] = 1
                 
                 y = np.dstack((labels, weights))
                 
                 yield X, y
             
             else:
+                labels = y[..., [0]]
+                weights = y[..., [1]]
+                weights[weights >= 2] = 10
+                weights[weights < 2] = 1
+                
+                y = np.concatenate((labels, weights), axis=-1)
+                
                 yield X, y
                 
