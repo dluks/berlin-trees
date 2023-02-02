@@ -1,4 +1,6 @@
 import os
+import time
+from functools import reduce
 
 import core.callbacks as callbacks
 import core.optimizers as optimizers
@@ -29,7 +31,7 @@ class Config:
         # Describe the weights file, e.g. "obj0-bg1-bounds_cnt10" where "obj0" indicates
         # labels as having weights of 0, "bg1" -> background 1, and "bounds_cnt10" ->
         # boundaries continous weights up to 10
-        self.weights_type = "obj0-bg1-bounds_cnt"
+        self.weights_type = "obj-bg1-bounds_10"
 
         # Patch generation; from the training areas (extracted in the last notebook),
         # we generate fixed size patches.
@@ -66,8 +68,8 @@ class Config:
         # CNN SETTINGS
         # Where to save the model and/or weights
         self.weights_only = 0  # 0 = False, 1 = True
-        self.model_path = "./saved_models/UNet"
-        self.weights_path = "./saved_weights/UNet"
+        self.model_dir = "./saved_models/UNet"
+        self.weights_dir = "./saved_weights/UNet"
         self.log_dir = "./logs/UNet"
         
         # CNN hyperparameters
@@ -79,15 +81,36 @@ class Config:
         self.LOSS_NAME = "weightmap_tversky"
         self.metrics = [dice_coef, dice_loss, specificity, sensitivity, accuracy]
         
-        # CNN Callbacks
-        checkpoint = callbacks.checkpoint(self.model_path)
-        tensorboard = callbacks.tensorboard(self.log_dir)
-        self.callbacks = [checkpoint, tensorboard]
-        
         # Maximum number of validation images to use
         self.VAL_LIMIT = 200
         
         # Maximum number of steps_per_epoch while training
         self.MAX_TRAIN_STEPS = 1000
         
+        # Create the model and weigth filenames
+        timestamp = time.strftime("%Y%m%d-%H%M")
+        channels = self.input_image_channels
+        channels = reduce(lambda a, b: a + str(b), channels, "")
+
+        if self.weights_only:
+            if not os.path.exists(self.weights_dir):
+                os.makedirs(self.weights_dir)
+
+            self.model_fn = os.path.join(
+                self.weights_dir,
+                f"{timestamp}_{self.OPTIMIZER_NAME}_{self.LOSS_NAME}_{channels}_{self.input_shape[0]}.hdf5"
+            )
+        else:
+            if not os.path.exists(self.model_dir):
+                os.makedirs(self.model_dir)
+
+            self.model_fn = os.path.join(
+                self.model_dir,
+                f"{timestamp}_{self.OPTIMIZER_NAME}_{self.LOSS_NAME}_{channels}_{self.input_shape[0]}.h5"
+            )
+        
+        # CNN Callbacks
+        checkpoint = callbacks.checkpoint(self.model_fn)
+        tensorboard = callbacks.tensorboard(self.log_dir)
+        self.callbacks = [checkpoint, tensorboard]
         

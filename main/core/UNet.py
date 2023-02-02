@@ -43,7 +43,7 @@ def UNet(
         x = conv_block(x, num_filters)
         return x
 
-    input_img = tf.keras.layers.Input(input_shape[1:], name="Input")
+    input_img = tf.keras.layers.Input(input_shape[1:], name="input")
     s1, p1 = encoder_block(input_img, 1 * layer_count)
     s2, p2 = encoder_block(p1, 2 * layer_count)
     s3, p3 = encoder_block(p2, 4 * layer_count)
@@ -62,7 +62,7 @@ def UNet(
         kernel_regularizer=regularizers,
     )(d4)
 
-    model = tf.keras.models.Model(input_img, outputs, name="U-Net")
+    model = tf.keras.models.Model(input_img, outputs, name="unet")
     
     if weight_file:
         model.load_weights(weight_file)

@@ -3,7 +3,7 @@ import os
 import tensorflow as tf
 
 
-def checkpoint(model_path, weights_only=False):
+def checkpoint(model_fn, weights_only=False):
     """Configure and enable the ModelCheckpoint callback
 
     Args:
@@ -14,11 +14,9 @@ def checkpoint(model_path, weights_only=False):
     Returns:
         object: Instance of the tf.keras.callbacks.ModelCheckpoint class
     """
-    if not os.path.exists(model_path):
-        os.makedirs(model_path)
     
     cp = tf.keras.callbacks.ModelCheckpoint(
-        model_path,
+        model_fn,
         monitor="val_loss",
         verbose=1,
         save_best_only=True,
