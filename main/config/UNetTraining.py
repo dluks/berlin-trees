@@ -22,8 +22,8 @@ class Config:
         self.image_dir = "../../data/dap05/combined/512"  # Relative to the notebook
         self.rgbi_dn = "rgbi"  # dn = directory name
         self.ndvi_dn = "ndvi"
-        self.label_dn = "labels"
-        self.weights_dn = "weights"
+        self.label_dn = "labels_eroded"
+        self.weights_dn = "border_weights"
 
         # Whether to use binary segmentation or multiclass
         self.use_binary_labels = True
@@ -31,7 +31,9 @@ class Config:
         # Describe the weights file, e.g. "obj0-bg1-bounds_cnt10" where "obj0" indicates
         # labels as having weights of 0, "bg1" -> background 1, and "bounds_cnt10" ->
         # boundaries continous weights up to 10
-        self.weights_type = "obj1-bg1-bounds10"
+        self.weights_type = "eroded_no-weights-all1"
+        self.weight_threshold = 1
+        self.no_weights = True
 
         # Patch generation; from the training areas (extracted in the last notebook),
         # we generate fixed size patches.
@@ -58,7 +60,7 @@ class Config:
         self.patch_dir = f"./patches_{self.patch_size[0]}"
         self.test_override = ["393_5823"]
         self.val_override = ["393_5823"]
-        self.frames_json = os.path.join(self.patch_dir, "hand_as_val.json")
+        self.frames_json = os.path.join(self.patch_dir, "hand_as_val_all_eroded_labels.json")
 
         # Shape of the input data, height*width*channel. Here channels are R, G, B, NIR,
         # NDVI, after which labels and weights will be added.
@@ -75,8 +77,8 @@ class Config:
         self.log_dir = "./logs/UNet"
         
         # CNN hyperparameters
-        self.BATCH_SIZE = 8
-        self.EPOCHS = 50
+        self.BATCH_SIZE = 16
+        self.EPOCHS = 200
         self.optimizer = optimizers.adaDelta
         self.OPTIMIZER_NAME = "AdaDelta"
         self.loss = tversky
@@ -87,7 +89,7 @@ class Config:
         self.VAL_LIMIT = 200
         
         # Maximum number of steps_per_epoch while training
-        self.MAX_TRAIN_STEPS = 1000
+        self.MAX_TRAIN_STEPS = (self.EPOCHS // self.BATCH_SIZE) * 2
         
         # Create the model and weigth filenames
         timestamp = time.strftime("%Y%m%d-%H%M")

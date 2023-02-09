@@ -31,7 +31,7 @@ def split_dataset(
         tuple: Tuple containing the split training, validation, and testing frames
     """
     if os.path.isfile(frames_json):
-        print("Reading train-test split from file...")
+        print(f"Reading train-test split from file ({os.path.basename(frames_json)})")
         with open(frames_json, "r") as file:
             fjson = json.load(file)
             training_frame_idx = fjson["training_frame_idx"]

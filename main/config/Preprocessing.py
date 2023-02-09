@@ -6,7 +6,7 @@ class Config:
 
     def __init__(self):
         # Reading the raw images and annotations
-        self.data_dir_path = "/Users/lusk/projects/uni-potsdam/internships/trees/data/dap05/combined/512"
+        self.data_dir_path = "../../data/dap05/combined/512"
         self.image_file_ext = ".tif"
         self.rgbi_dn = "rgbi"  # dn = subdirectory name
         self.label_dn = "labels"
@@ -16,5 +16,5 @@ class Config:
         self.ndvi_dn = "ndvi"
         self.ndvi_suffix = "ndvi"
         self.eroded_suffix = "eroded"
-        self.boundary_weights_dn = "weights"
-        self.boundary_suffix = "weights"
+        self.boundary_weights_dn = "border_weights"
+        self.boundary_suffix = "border_weights"
