@@ -12,12 +12,13 @@ from core.losses import (
     specificity,
     tversky,
 )
+from tensorflow.keras.metrics import BinaryIoU
 
 
 # Configuration parameters for 2-UNetTraining.ipynb
 class Config:
-    """Configuration constructor for performing U-Net training.
-    """
+    """Configuration constructor for performing U-Net training."""
+
     def __init__(self):
         self.image_dir = "../../data/dap05/combined/512"  # Relative to the notebook
         self.rgbi_dn = "rgbi"  # dn = directory name
@@ -27,13 +28,16 @@ class Config:
 
         # Whether to use binary segmentation or multiclass
         self.use_binary_labels = True
-        
+
         # Describe the weights file, e.g. "obj0-bg1-bounds_cnt10" where "obj0" indicates
         # labels as having weights of 0, "bg1" -> background 1, and "bounds_cnt10" ->
         # boundaries continous weights up to 10
         self.weights_type = "eroded_no-weights-all1"
-        self.weight_threshold = 1
+        # Set all weights to 1, effectively nullyfing their influence
         self.no_weights = True
+        # The threshold above or equal to which weights will be set to 10. Only works if
+        # self.no_weights == False
+        self.weight_threshold = 1
 
         # Patch generation; from the training areas (extracted in the last notebook),
         # we generate fixed size patches.
@@ -60,7 +64,9 @@ class Config:
         self.patch_dir = f"./patches_{self.patch_size[0]}"
         self.test_override = ["393_5823"]
         self.val_override = ["393_5823"]
-        self.frames_json = os.path.join(self.patch_dir, "hand_as_val_all_eroded_labels.json")
+        self.frames_json = os.path.join(
+            self.patch_dir, "hand_as_val_all_eroded_labels.json"
+        )
 
         # Shape of the input data, height*width*channel. Here channels are R, G, B, NIR,
         # NDVI, after which labels and weights will be added.
@@ -75,7 +81,7 @@ class Config:
         self.model_dir = "./saved_models/UNet"
         self.weights_dir = "./saved_weights/UNet"
         self.log_dir = "./logs/UNet"
-        
+
         # CNN hyperparameters
         self.BATCH_SIZE = 16
         self.EPOCHS = 200
@@ -83,14 +89,21 @@ class Config:
         self.OPTIMIZER_NAME = "AdaDelta"
         self.loss = tversky
         self.LOSS_NAME = "weightmap_tversky"
-        self.metrics = [dice_coef, dice_loss, specificity, sensitivity, accuracy]
-        
+        self.metrics = [
+            dice_coef,
+            dice_loss,
+            specificity,
+            sensitivity,
+            accuracy,
+            BinaryIoU(target_class_ids=[0, 1], threshold=0.5),
+        ]
+
         # Maximum number of validation images to use
         self.VAL_LIMIT = 200
-        
+
         # Maximum number of steps_per_epoch while training
         self.MAX_TRAIN_STEPS = (self.EPOCHS // self.BATCH_SIZE) * 2
-        
+
         # Create the model and weigth filenames
         timestamp = time.strftime("%Y%m%d-%H%M")
         channels = self.input_image_channels
@@ -100,21 +113,14 @@ class Config:
             if not os.path.exists(self.weights_dir):
                 os.makedirs(self.weights_dir)
 
-            self.model_fn = os.path.join(
-                self.weights_dir,
-                f"{model_identifier}.hdf5"
-            )
+            self.model_fn = os.path.join(self.weights_dir, f"{model_identifier}.hdf5")
         else:
             if not os.path.exists(self.model_dir):
                 os.makedirs(self.model_dir)
 
-            self.model_fn = os.path.join(
-                self.model_dir,
-                f"{model_identifier}.h5"
-            )
-        
+            self.model_fn = os.path.join(self.model_dir, f"{model_identifier}.h5")
+
         # CNN Callbacks
         checkpoint = callbacks.checkpoint(self.model_fn)
         tensorboard = callbacks.tensorboard(self.log_dir)
         self.callbacks = [checkpoint, tensorboard]
-        
