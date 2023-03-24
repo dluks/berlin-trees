@@ -6,10 +6,10 @@ class Config:
 
     def __init__(self):
         # Reading the raw images and annotations
-        self.data_dir_path = "../../data/dap05/combined/512"
+        self.data_dir_path = "../../data/dap05/hand"
         self.image_file_ext = ".tif"
         self.rgbi_dn = "rgbi"  # dn = subdirectory name
-        self.label_dn = "labels"
+        self.label_dn = "label"
         self.background_label_val = 0
         
         # For writing ndvi, eroded labels (optional), and boundary weights
