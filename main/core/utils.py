@@ -105,7 +105,7 @@ def get_biou(y_pred, y_true):
     return res
 
 
-def get_trees(y_pred):
+def get_trees(y_pred, min_dist=1):
     """Locates individual tree labels via watershed segmentation of a binary prediction
     image.
 
@@ -117,7 +117,7 @@ def get_trees(y_pred):
     """
     y_pred = np.squeeze(y_pred).astype(int)
     distance = ndi.distance_transform_edt(y_pred)
-    coords = peak_local_max(distance, footprint=np.ones((3, 3)), labels=y_pred)
+    coords = peak_local_max(distance, min_distance=min_dist)
     mask = np.zeros(distance.shape, dtype=bool)
     mask[tuple(coords.T)] = True
     markers, _ = ndi.label(mask)
