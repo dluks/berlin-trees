@@ -20,9 +20,11 @@ class Config:
         self.ndvi_dn = "ndvi"
         self.label_dn = "labels"
         self.weights_dn = "weights"
-        self.true_labels_tile = "../../data/dap05/hand/label/393_5823_label_2020.tif"
+        self.true_labels_tile = (
+            "../../data/dap05/combined/full_size/labels/393_5823_label_2020.tif"
+        )
         self.true_eroded_labels_tile = (
-            "../../data/dap05/hand/label/393_5823_label_eroded_2020.tif"
+            "../../data/dap05/combined/full_size/labels/393_5823_label_eroded_2020.tif"
         )
 
         # Path to store prediction data (will be created if it doesn't already exist)
@@ -53,7 +55,7 @@ class Config:
         self.step_size = 256
 
         # CNN hyperparameters
-        # self.BATCH_SIZE = 16
+        self.BATCH_SIZE = 16
         # self.EPOCHS = 200
         self.optimizer = optimizers.adaDelta
         self.OPTIMIZER_NAME = "AdaDelta"
