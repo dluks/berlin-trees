@@ -22,8 +22,8 @@ class Config:
         self.image_dir = "../../data/dap05/combined/512"  # Relative to the notebook
         self.rgbi_dn = "rgbi"  # dn = directory name
         self.ndvi_dn = "ndvi"
-        self.label_dn = "labels_eroded"
-        self.weights_dn = "border_weights"
+        self.label_dn = "labels"
+        self.weights_dn = "weights"
 
         # Whether to use binary segmentation or multiclass
         self.use_binary_labels = True
@@ -33,7 +33,7 @@ class Config:
         # boundaries continous weights up to 10
         self.weights_type = "eroded_no-weights-all1"
         self.weight_threshold = 1
-        self.no_weights = True
+        self.no_weights = False
 
         # Patch generation; from the training areas (extracted in the last notebook),
         # we generate fixed size patches.
