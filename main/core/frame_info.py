@@ -26,7 +26,7 @@ class FrameInfo:
 
         Args:
             patch_size (tuple(int, int)): Size of the patch (height * width)
-            step_size (tuple(int, int)): Amount of overlap between each patch. Controls
+            step_size (int): Amount of overlap between each patch. Controls
             the final number of patches returned. Should be a divisor of the patch size.
 
         Returns:

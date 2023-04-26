@@ -1,5 +1,6 @@
 import numpy as np
 from imgaug import augmenters as iaa
+from tqdm.notebook import tqdm
 
 
 def imageAugmentationWithIAA():
@@ -64,7 +65,7 @@ class DataGenerator:
         """Generate all patches from all assigned frames sequentially.
 
         Args:
-            step_size (tuple(int, int)): Step size when generating patches (See
+            step_size (int): Step size when generating patches (See
             FrameInfo.all_patches())
 
         Returns:
@@ -75,13 +76,14 @@ class DataGenerator:
             number of patches, m and n are height and width of the image, and k is the
             number of annotation channels.
         """
-        patches = []
-        for frame_id in self.frame_idx:
+
+        n_channels = len(self.input_image_channels) + len(self.annotation_channels)
+        data = np.empty((0, *self.patch_size, n_channels))
+        for frame_id in tqdm(self.frame_idx):
             frame = self.frames[frame_id]
             frame_patches = frame.all_patches(self.patch_size, step_size)
-            patches.extend(frame_patches)
+            data = np.concatenate((data, frame_patches))
 
-        data = np.array(patches)
         img = data[..., self.input_image_channels]
         y = data[..., self.annotation_channels]
 
