@@ -3,7 +3,6 @@ from patchify import patchify
 
 
 class FrameInfo:
-    
     def __init__(self, img, labels, weights, name, dtype=np.float32):
         """FrameInfo constructor
 
@@ -19,8 +18,7 @@ class FrameInfo:
         self.weights = weights
         self.name = name
         self.dtype = dtype
-        
-    
+
     def all_patches(self, patch_size, step_size):
         """Get and return all sequential patches from the frame.
 
@@ -37,13 +35,12 @@ class FrameInfo:
         weights = self.weights
         comb = np.dstack((img, labels, weights))
         channels = comb.shape[-1]
-        
+
         patches = patchify(comb, (*patch_size, channels), step_size).reshape(
             -1, *patch_size, channels
         )
-        
+
         return patches
-        
 
     def get_single_patch(self, i, j, patch_size, img_size):
         """Gets a single patch from a frame at the given location.
@@ -60,21 +57,19 @@ class FrameInfo:
         """
         i_slice = slice(i, i + img_size[0])
         j_slice = slice(j, j + img_size[1])
-        
+
         img = self.img[i_slice, j_slice]
         labels = self.labels[i_slice, j_slice]
         weights = self.weights[i_slice, j_slice]
-        
+
         combined = np.dstack((img, labels, weights))
         channels = combined.shape[-1]
-        
+
         patch = np.zeros((*patch_size, channels), dtype=self.dtype)
-        patch[:img_size[0], :img_size[1]] = combined
-        
+        patch[: img_size[0], : img_size[1]] = combined
+
         return patch
-        
-        
-        
+
     def random_patch(self, patch_size):
         """Generates a randomly-located patch from the frame
 
@@ -85,17 +80,19 @@ class FrameInfo:
             ndarray: 3D array of size (m * n * k) containing the random patch
         """
         img_shape = self.img.shape
-        
+
         # Set the origin to (0,0) if the image is <= to the patch size.
-        if img_shape[0] <= patch_size[0]: x = 0
+        if img_shape[0] <= patch_size[0]:
+            x = 0
         else:
             x = np.random.randint(0, img_shape[0] - patch_size[0])
-        
-        if img_shape[1] <= patch_size[1]: y = 0
+
+        if img_shape[1] <= patch_size[1]:
+            y = 0
         else:
             y = np.random.randint(0, img_shape[1] - patch_size[1])
-        
+
         img_size = (min(img_shape[0], patch_size[0]), min(img_shape[1], patch_size[1]))
         img_patch = self.get_single_patch(x, y, patch_size, img_size)
-        
+
         return img_patch

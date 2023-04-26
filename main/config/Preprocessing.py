@@ -1,8 +1,6 @@
-import os
-
-
 # Configuration parameters for 1-Preprocessing.ipynb
 class Config:
+    """Configuration for 1-Preprocessing.ipynb"""
 
     def __init__(self):
         # Reading the raw images and annotations
@@ -11,7 +9,7 @@ class Config:
         self.rgbi_dn = "rgbi"  # dn = subdirectory name
         self.label_dn = "label"
         self.background_label_val = 0
-        
+
         # For writing ndvi, eroded labels (optional), and boundary weights
         self.ndvi_dn = "ndvi"
         self.ndvi_suffix = "ndvi"
