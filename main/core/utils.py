@@ -7,7 +7,8 @@ from core.frame_info import FrameInfo
 from patchify import patchify, unpatchify
 from scipy import ndimage as ndi
 from skimage.feature import peak_local_max
-from skimage.segmentation import watershed
+from skimage.measure import label, regionprops
+from skimage.segmentation import expand_labels, watershed
 from tensorflow.keras.metrics import BinaryIoU
 from tqdm.notebook import tqdm
 
@@ -49,7 +50,7 @@ def unpatch_to_tile(patches, frame_shape, tile_shape):
     """Takes a list of patches from frames and unpatchifies them into the original tile.
 
     Args:
-        patches (ndarray): Array of patches from the frames
+        patches (ndarray): Array of patches from the frames (h, w, n)
         frame_shape (tup): Shape of the original frames (h, w, n)
         tile_shape (tup): Shape of original tile (h, w, n)
 
@@ -123,3 +124,75 @@ def get_trees(y_pred, min_dist=1):
     markers, _ = ndi.label(mask)
     labels = watershed(-distance, markers, mask=y_pred)
     return labels
+
+
+def chull(labels):
+    """Reshapes all labels into their convex hull
+
+    Returns:
+        ndarray: New labels re-shaped by their convex hulls
+    """
+    chulls = np.zeros_like(labels)
+    labels = label(labels)
+    regions = regionprops(labels)
+
+    for i in range(1, labels.max()):
+        coords = regions[i].slice
+        chulls[coords] = np.where(regions[i].image_convex, i, chulls[coords])
+
+    labels = label(chulls)
+    regions = regionprops(labels)
+
+    return labels, regions
+
+
+def grow(labels, dist=7):
+    # dilated = np.zeros_like(labels)
+    # for i in tqdm(range(1, labels.max()), desc="Dilating"):
+    #     l = binary_dilation(labels == i, disk(radius))
+    #     dilated[l] = i
+
+    # labels = label(dilated)
+    # regions = regionprops(labels)
+    labels = expand_labels(labels, dist)
+    regions = regionprops(labels)
+
+    return labels, regions
+
+
+def mask_bg(im):
+    im = np.ma.masked_where(im == 0, im)
+    return im
+
+
+def write_tiff(fn, im, profile="label"):
+    if profile == "label":
+        profile_dict = {
+            "driver": "GTiff",
+            "dtype": "int16",
+            "nodata": 0,
+            "width": 4608,
+            "height": 2048,
+            "count": 1,
+            "crs": None,
+        }
+    elif profile == "rgb":
+        profile_dict = {
+            "driver": "GTiff",
+            "dtype": "int16",
+            "nodata": np.nan,
+            "width": 4608,
+            "height": 2048,
+            "count": 3,
+            "crs": None,
+        }
+    with rio.open(fn, "w", **profile_dict) as dst:
+        dst.write(im)
+
+
+def sample_img(im, xmin=700, ymin=1000, step=500, random=False):
+    if random:
+        xmin = np.random.randint(0, im.shape[0] - step)
+        ymin = np.random.randint(0, im.shape[1] - step)
+
+    return im[xmin : xmin + step, ymin : ymin + step, ...]
