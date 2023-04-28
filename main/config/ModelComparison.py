@@ -26,6 +26,8 @@ class Config:
         self.true_eroded_labels_tile = (
             "../../data/dap05/combined/full_size/labels/393_5823_label_eroded_2020.tif"
         )
+        self.figures_dir = "./figures"
+        self.bins = "auto"
 
         # Path to store prediction data (will be created if it doesn't already exist)
         self.pred_dir = "./predictions"

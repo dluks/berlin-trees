@@ -123,7 +123,9 @@ def get_trees(y_pred, min_dist=1):
     mask[tuple(coords.T)] = True
     markers, _ = ndi.label(mask)
     labels = watershed(-distance, markers, mask=y_pred)
-    return labels
+    labels = label(labels)
+    regions = regionprops(labels)
+    return labels, regions
 
 
 def chull(labels):

@@ -9,6 +9,7 @@ class Config:
         self.rgbi_dn = "rgbi"  # dn = subdirectory name
         self.label_dn = "label"
         self.background_label_val = 0
+        self.figures_dir = "./figures"
 
         # For writing ndvi, eroded labels (optional), and boundary weights
         self.ndvi_dn = "ndvi"
