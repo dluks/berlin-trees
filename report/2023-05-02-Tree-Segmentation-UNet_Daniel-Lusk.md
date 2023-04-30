@@ -15,7 +15,7 @@ read_time: false
 tags:
   - CNN
   - U-Net
-  - tree segmentation
+  - tree detection
   - orthophotos
 ---
 
