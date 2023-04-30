@@ -1,16 +1,16 @@
 ---
-title: "Weighted Losses and label manipulation in CNN-Based Individual Tree Crown Segmentation from High-Resolution Orthophotos"
+title: "Understanding weight maps and label manipulation in tree detection from high-resolution orthophotos with U-Net"
 author: "Daniel Lusk"
 author_profile: true
 date: 2023-05-02
-permalink: /posts/2023/05/Weighted-Losses-Tree-Segmentation
+permalink: /posts/2023/05/weight-maps-label-manipulation-tree-detection-unet
 toc: true
 toc_sticky: true
-toc_label: "Weighted Losses and label manipulation in CNN-Based Individual Tree Crown Segmentation from High-Resolution Orthophotos"
+toc_label: "Understanding weight maps and label manipulation in tree detection from high-resolution orthophotos with U-Net"
 header:
   overlay_image: "./images/banner.png"
   overlay_filter: 0.3
-  caption: "Weighted Losses and label manipulation in CNN-Based Individual Tree Crown Segmentation from High-Resolution Orthophotos"
+  caption: "Understanding weight maps and label manipulation in tree detection from high-resolution orthophotos with U-Net"
 read_time: false
 tags:
   - CNN
