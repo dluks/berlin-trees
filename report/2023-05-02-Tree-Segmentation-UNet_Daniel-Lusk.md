@@ -8,7 +8,7 @@ toc: true
 toc_sticky: true
 toc_label: "Weighted Losses and label manipulation in CNN-Based Individual Tree Crown Segmentation from High-Resolution Orthophotos"
 header:
-  overlay_image: 
+  overlay_image: "./images/banner.png"
   overlay_filter: 0.3
   caption: "Weighted Losses and label manipulation in CNN-Based Individual Tree Crown Segmentation from High-Resolution Orthophotos"
 read_time: false
